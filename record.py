@@ -24,10 +24,18 @@ from datetime import datetime
 
 def check_for_escape():
     """Check if ESC key is pressed (non-blocking)."""
-    if select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], []):
-        ch = sys.stdin.read(1)
-        if ch == '\x1b':  # ESC key
-            return True
+    # Check multiple times with small delays to catch keypresses more reliably
+    for _ in range(10):  # Check 10 times over 100ms
+        if select.select([sys.stdin], [], [], 0.01) == ([sys.stdin], [], []):
+            try:
+                ch = sys.stdin.read(1)
+                if ch == '\x1b':  # ESC key
+                    # Clear any remaining input buffer
+                    while select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], []):
+                        sys.stdin.read(1)
+                    return True
+            except:
+                pass
     return False
 
 
@@ -175,7 +183,7 @@ def record_screen(duration=60, output_file=None, window_info=None):
     """Record the screen for specified duration using ffmpeg."""
     if output_file is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = f"screen_recording_{timestamp}.mp4"
+        output_file = f"screen_recording_{timestamp}.mov"
     
     print(f"Starting screen recording for {duration} seconds...")
     print("3...")
@@ -214,19 +222,27 @@ def record_screen(duration=60, output_file=None, window_info=None):
         tty.setraw(sys.stdin.fileno())
         
         try:
-            # Show timer during recording
-            for i in range(duration):
-                remaining = duration - i
-                print(f"\rRecording... {remaining}s remaining (Press ESC to stop)", end="", flush=True)
+            # Show timer during recording with more frequent ESC checking
+            start_time = time.time()
+            last_second = -1
+            
+            while time.time() - start_time < duration:
+                elapsed = int(time.time() - start_time)
+                remaining = duration - elapsed
                 
-                # Check for ESC key press
+                # Only update display once per second to avoid flickering
+                if elapsed != last_second:
+                    print(f"\rRecording... {remaining}s remaining (Press ESC to stop)", end="", flush=True)
+                    last_second = elapsed
+                
+                # Check for ESC key press more frequently (every 0.1s)
                 if check_for_escape():
                     print("\n\nStopping recording...")
                     process.terminate()
                     process.wait()
                     break
                     
-                time.sleep(1)
+                time.sleep(0.1)  # Check ESC every 100ms instead of 1 second
             else:
                 # Wait for process to complete if not interrupted
                 process.wait()
@@ -308,23 +324,31 @@ def main():
     confirm = input(f"\nRecord {selected_app} for 60 seconds? (Y/n): ").strip().lower()
     
     if confirm in ['', 'y', 'yes']:
-        # Get window info and bring selected app to front if specific app was chosen
+        # Get window info but keep Terminal in focus for ESC key detection
         window_info = None
         if selected_app != "entire screen":
             try:
+                # Temporarily bring selected app to front to get window info
                 subprocess.run(['osascript', '-e', f'tell application "{selected_app}" to activate'], 
                              check=True)
-                time.sleep(1)  # Give time for app to come to front
+                time.sleep(0.5)  # Brief pause to get window info
                 
                 # Get window coordinates
                 window_info = get_app_window_info(selected_app)
+                
+                # Bring Terminal back to front for ESC key detection
+                subprocess.run(['osascript', '-e', 'tell application "Terminal" to activate'], 
+                             check=True)
+                time.sleep(0.5)  # Give Terminal time to come to front
+                
                 if window_info:
                     print(f"Recording {selected_app} window at {window_info['width']}x{window_info['height']}")
+                    print("Terminal kept in focus for ESC key detection")
                 else:
                     print(f"Could not get window info for {selected_app}, recording entire screen")
                     
             except subprocess.CalledProcessError:
-                print(f"Could not bring {selected_app} to front, recording anyway...")
+                print(f"Could not manage window focus, recording anyway...")
         
         # Start recording
         output_file = record_screen(duration=60, window_info=window_info)

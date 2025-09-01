@@ -4,25 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Status
 
-This repository is currently in an initial state with minimal setup. The project appears to be named "record" based on the directory structure.
+This repository contains a Python-based screen recording tool for macOS applications.
+
+## Project Overview
+
+**record** is a macOS screen recording utility that:
+- Records specific application windows or entire screen using ffmpeg
+- Detects and lists currently running desktop applications
+- Provides DRM protection warnings for streaming apps
+- Features responsive ESC key detection to stop recording early
+- Outputs recordings in .mov format for QuickTime compatibility
+- Maintains Terminal focus during recording for reliable ESC key handling
 
 ## Configuration
 
 - Claude Code permissions are configured in `.claude/settings.local.json` with specific tool allowances including system utilities, package management, and media processing tools
-- The allowed tools suggest potential use cases involving system administration, media processing (ffmpeg, ffprobe), and package management
+- The allowed tools are essential for the media processing functionality (ffmpeg, ffprobe) and system interactions required by the recording script
 
-## Development Setup
+## Dependencies
 
-This repository does not currently contain standard development configuration files (package.json, requirements.txt, Cargo.toml, etc.). When adding development dependencies:
+- **Python 3**: Core language
+- **ffmpeg**: Video recording engine (auto-installed via Homebrew if missing)
+- **Homebrew**: Package manager for installing ffmpeg
+- **macOS System Permissions**: Screen Recording permission required
 
-- Choose appropriate package management based on the technology stack
-- Add build, test, and lint commands to the package configuration
-- Update this file with relevant development commands once established
+## Usage
 
-## Next Steps
+Run the script directly:
+```bash
+python3 record.py
+```
 
-Future instances of Claude Code should:
-1. Determine the intended technology stack and purpose of the "record" project
-2. Initialize appropriate project structure and dependencies
-3. Update this CLAUDE.md with specific build, test, and development commands
-4. Document the architecture and key components as they are developed
+The script will:
+1. Check and install dependencies (ffmpeg via Homebrew)
+2. List running applications
+3. Allow selection of specific app or entire screen
+4. Record for 60 seconds (or until ESC is pressed)
+5. Save recording as timestamped .mov file
+
+## Development Notes
+
+- ESC key detection uses raw terminal mode with frequent polling (every 100ms)
+- Window coordinate detection via AppleScript for precise app recording
+- Terminal focus is maintained during recording for reliable user control
