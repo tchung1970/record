@@ -27,12 +27,7 @@ git clone https://github.com/tchung1970/record.git
 cd record
 ```
 
-2. Make the script executable:
-```bash
-chmod +x record.py
-```
-
-3. Run the script (dependencies will be installed automatically):
+2. Run the script (dependencies will be installed automatically):
 ```bash
 python record.py
 ```
