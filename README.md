@@ -1,6 +1,6 @@
 # Screen Recording Tool for macOS
 
-A powerful and user-friendly Python script for recording specific macOS applications using ffmpeg. This tool provides intelligent app detection, DRM protection warnings, and flexible recording controls.
+A simple Python script for recording specific macOS applications using ffmpeg. This tool provides intelligent app detection, DRM protection warnings, and flexible recording controls.
 
 ## Features
 
@@ -34,7 +34,7 @@ chmod +x record.py
 
 3. Run the script (dependencies will be installed automatically):
 ```bash
-python3 record.py
+python record.py
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ python3 record.py
 Simply run the script and follow the interactive prompts:
 
 ```bash
-python3 record.py
+python record.py
 ```
 
 ### Example Session
