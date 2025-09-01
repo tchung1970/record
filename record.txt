@@ -1,0 +1,31 @@
+Screen Recording Tool for macOS
+================================
+✓ ffmpeg found
+
+Currently running applications:
+1. Speedtest
+2. TV (DRM Protected)
+
+⚠️  Warning: DRM Protected apps will show black screen during recording
+   due to copyright protection. Choose non-DRM apps for successful recording.
+
+Found 2 running application(s).
+
+Enter number (1-2) to select app, press Enter for default (1), or type 'exit' to quit: 
+Selected: Speedtest (default)
+
+💡 Tip: Press ESC during recording to stop early
+
+Record Speedtest for 60 seconds? (Y/n): 
+Recording Speedtest window at 400x609
+Starting screen recording for 60 seconds...
+3...
+2...
+1...
+Recording!
+Recording... 19s remaining (Press ESC to stop)
+
+Stopping recording...
+
+Recording completed! Saved as: screen_recording_20250901_115859.mp4
+Recording session complete.
