@@ -7,7 +7,7 @@ A simple Python script for recording specific macOS applications using ffmpeg. T
 - 🎯 **Smart App Detection** - Automatically detects running desktop applications with visible windows
 - 🔒 **DRM Protection Warnings** - Identifies and warns about apps that may show black screen due to copyright protection (Netflix, Apple TV, etc.)
 - ⏱️ **Flexible Duration** - Default 60-second recording with live countdown timer
-- ⚡ **Early Stop** - Press ESC during recording to stop early
+- ⚡ **Responsive ESC Detection** - Press ESC during recording to stop early (Terminal stays focused)
 - 🎨 **Clean Interface** - Intuitive command-line interface with clear prompts
 - 📱 **Window-Specific Recording** - Records only the selected app window, not the entire screen
 - 🚀 **Auto-Installation** - Automatically installs missing dependencies (ffmpeg) via Homebrew
@@ -66,6 +66,7 @@ Enter number (1-4) to select app, press Enter for default (1), or type 'exit' to
 
 Record Speedtest for 60 seconds? (Y/n): 
 Recording Speedtest window at 1280x720
+Terminal kept in focus for ESC key detection
 Starting screen recording for 60 seconds...
 3...
 2...
@@ -74,7 +75,7 @@ Recording!
 Recording... 60s remaining (Press ESC to stop)
 Recording... 59s remaining (Press ESC to stop)
 ...
-Recording completed! Saved as: screen_recording_20250901_115859.mp4
+Recording completed! Saved as: screen_recording_20250901_115859.mov
 ```
 
 ## Configuration
@@ -118,14 +119,14 @@ The script will automatically prompt to install missing dependencies:
 The default settings provide:
 - **Resolution**: Native app window size
 - **Frame Rate**: 30 FPS
-- **Format**: MP4 (H.264)
+- **Format**: MOV (H.264)
 - **Quality**: Optimized for file size and compatibility
 
 ## Output Files
 
 Recordings are saved in the current directory with timestamps:
-- Format: `screen_recording_YYYYMMDD_HHMMSS.mp4`
-- Example: `screen_recording_20250901_115859.mp4`
+- Format: `screen_recording_YYYYMMDD_HHMMSS.mov`
+- Example: `screen_recording_20250901_115859.mov`
 
 ## Technical Details
 

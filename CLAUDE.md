@@ -1,49 +1,73 @@
-# CLAUDE.md
+# CLAUDE.md - Developer Documentation
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides technical guidance for Claude Code when working with the screen recording tool codebase.
 
-## Repository Status
+## Architecture Overview
 
-This repository contains a Python-based screen recording tool for macOS applications.
+The screen recording tool is a single-file Python script (`record.py`) with the following key components:
 
-## Project Overview
+### Core Functions
 
-**record** is a macOS screen recording utility that:
-- Records specific application windows or entire screen using ffmpeg
-- Detects and lists currently running desktop applications
-- Provides DRM protection warnings for streaming apps
-- Features responsive ESC key detection to stop recording early
-- Outputs recordings in .mov format for QuickTime compatibility
-- Maintains Terminal focus during recording for reliable ESC key handling
+- `check_for_escape()`: Non-blocking ESC key detection with input buffer management
+- `get_running_apps()`: AppleScript-based application discovery and filtering
+- `get_app_window_info()`: Window coordinate extraction for targeted recording
+- `record_screen()`: Main recording logic with ffmpeg subprocess management
+- `check_dependencies()`: Automatic dependency installation via Homebrew
+
+### Key Technical Decisions
+
+1. **Raw Terminal Mode**: Uses `termios` and `tty` for direct keyboard input handling
+2. **AppleScript Integration**: Leverages macOS scripting for window management and app control
+3. **ffmpeg Subprocess**: Background process management with proper cleanup
+4. **Focus Management**: Maintains Terminal focus during recording for reliable ESC detection
+
+## Development Guidelines
+
+### ESC Key Detection
+The `check_for_escape()` function has been optimized for reliability:
+- Polls input 10 times over 100ms to catch keypresses
+- Clears input buffer to handle multi-byte escape sequences  
+- Recording loop checks ESC every 100ms instead of 1 second
+
+### Window Management
+Focus handling sequence:
+1. Briefly activate target app (0.5s) to get window coordinates
+2. Return focus to Terminal for ESC key detection
+3. Record target app window using stored coordinates
+
+### Error Handling
+- Graceful fallback when window info unavailable (records full screen)
+- Safe subprocess termination on ESC or completion
+- Terminal settings restoration in finally block
 
 ## Configuration
 
-- Claude Code permissions are configured in `.claude/settings.local.json` with specific tool allowances including system utilities, package management, and media processing tools
-- The allowed tools are essential for the media processing functionality (ffmpeg, ffprobe) and system interactions required by the recording script
+### Claude Code Permissions
+Required tools in `.claude/settings.local.json`:
+- `system_profiler`, `brew`, `python3`: System utilities
+- `ffmpeg`, `ffprobe`: Media processing
+- `osascript`: AppleScript execution
+- `open`, `chmod`: File operations
 
-## Dependencies
+### Dependencies
+- **Python 3.6+**: Core runtime
+- **ffmpeg**: Video encoding (auto-installed)
+- **Homebrew**: Package manager
+- **macOS Screen Recording Permission**: System permission required
 
-- **Python 3**: Core language
-- **ffmpeg**: Video recording engine (auto-installed via Homebrew if missing)
-- **Homebrew**: Package manager for installing ffmpeg
-- **macOS System Permissions**: Screen Recording permission required
+## Code Quality Standards
 
-## Usage
+- Single-file architecture for simplicity
+- Comprehensive error handling with user-friendly messages
+- AppleScript integration for native macOS functionality
+- Proper resource cleanup (terminal settings, subprocess termination)
+- DRM app detection for user guidance
 
-Run the script directly:
-```bash
-python3 record.py
-```
+## Testing Considerations
 
-The script will:
-1. Check and install dependencies (ffmpeg via Homebrew)
-2. List running applications
-3. Allow selection of specific app or entire screen
-4. Record for 60 seconds (or until ESC is pressed)
-5. Save recording as timestamped .mov file
-
-## Development Notes
-
-- ESC key detection uses raw terminal mode with frequent polling (every 100ms)
-- Window coordinate detection via AppleScript for precise app recording
-- Terminal focus is maintained during recording for reliable user control
+When modifying the code:
+1. Test ESC key responsiveness across different terminal emulators
+2. Verify window coordinate detection for various app types
+3. Confirm Terminal focus is maintained during recording
+4. Test dependency auto-installation on clean systems
+5. Validate output file format compatibility with QuickTime
